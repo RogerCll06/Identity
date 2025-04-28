@@ -1,6 +1,10 @@
 package Cibertec.pe.Controller;
 
+import Cibertec.pe.Dto.AuthRequest;
+import Cibertec.pe.util.WrapperResponse;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -11,7 +15,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import Cibertec.pe.Dto.AuthRequest;
 import Cibertec.pe.Models.UsuarioCredential;
 import Cibertec.pe.Service.AuthService;
 
@@ -29,11 +32,13 @@ public class UsuarioController {
 	public String addNewUser(@RequestBody UsuarioCredential user) {
 		return service.saveUser(user);
 	}
+
+
 	@PostMapping("/token")
-	public String getToken(@RequestBody AuthRequest authReuqest) {
+	public ResponseEntity getToken(@RequestBody AuthRequest authReuqest) {
 		Authentication authentication =authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(authReuqest.getUsername(),authReuqest.getPassword()));                       
 	if(authentication.isAuthenticated()) {
-		return service.generateToken(authReuqest.getUsername());
+		return new WrapperResponse(service.generateToken(authReuqest.getUsername())).createResponse(HttpStatus.CREATED);
 	}else {
 		throw new RuntimeException("Acceso invalido");
 	}
